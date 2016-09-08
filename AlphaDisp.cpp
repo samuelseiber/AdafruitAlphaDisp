@@ -72,7 +72,7 @@ void AlphaDisp::begin(uint8_t _addr = 0x70, uint8_t ND=1, uint8_t DD=4)
 {
   i2c_addr = _addr;
   numberOfDevices=1;  //Set the default
-  if ((ND>0) && (ND<8)) numberOfDevices=ND;  //Don't change anything if out of range
+  if ((ND>0) && (ND<9)) numberOfDevices=ND;  //Don't change anything if out of range
   digitsPerDev=4;  //The standard device from Adafruit has 4 digits
   if ((DD>0) && (DD<9)) digitsPerDev=DD; //Don't change anything if out of range
   Wire.begin();
@@ -86,6 +86,7 @@ void AlphaDisp::begin(uint8_t _addr = 0x70, uint8_t ND=1, uint8_t DD=4)
     setBrightness(0); // min brightness
 	s_delay=250;
 	cursorAddr=0;
+	sevenSegFlag=false;
 }
 
 void AlphaDisp::writeDisplay(void) 
@@ -97,7 +98,7 @@ void AlphaDisp::writeDisplay(void)
 
     for (uint8_t i=0; i<digitsPerDev; i++) {
       Wire.write(displaybuffer[i+((devAddr-i2c_addr)*digitsPerDev)] & 0xFF);    
-      Wire.write(displaybuffer[i+((devAddr-i2c_addr)*digitsPerDev)] >> 8);    
+      Wire.write(displaybuffer[i+((devAddr-i2c_addr)*digitsPerDev)] >> 8); 
     }
     Wire.endTransmission();  
   }  
@@ -112,15 +113,18 @@ void AlphaDisp::clear(void)
 
 void AlphaDisp::writeDigitRaw(uint8_t n, uint16_t bitmap) 
 {
-  if (n<DISPLAY_BUFFER_SIZE) displaybuffer[n] = bitmap;  //Bypass if pointer out of range
+  if ((n<=numberOfDevices*digitsPerDev) && (n!=0)) displaybuffer[n-1] = bitmap;  //Bypass if pointer out of range
 }
 
 void AlphaDisp::writeDigitAscii(uint8_t n, uint8_t a,  boolean d) 
 {
-  if (a>127) return;   //Out of bounds on our table, so do nothing	
-  uint16_t font = pgm_read_word(alphafonttable+a);
-  displaybuffer[n] = font;
-  if (d) displaybuffer[n] |= (1<<14);
+  uint8_t tmpchr=a;
+  if (a>127) return;   //Out of bounds on our table, so do nothing
+  if ((n>numberOfDevices*digitsPerDev) || (n==0)) return;  //exit if "off screen"  
+  if ((sevenSegFlag) && isdigit(tmpchr)) tmpchr-=48;
+  uint16_t font = pgm_read_word(alphafonttable+tmpchr);
+  displaybuffer[n-1] = font;  //display memory array starts at 0,for humans, the screen starts at 1
+  if (d) displaybuffer[n-1] |= (1<<14);
 }
 
 void AlphaDisp::scrollDelay(unsigned long dly)
@@ -130,8 +134,8 @@ void AlphaDisp::scrollDelay(unsigned long dly)
   
 void AlphaDisp::scrollCharacter(uint8_t character, boolean d)
   {
-	 for (uint8_t z9=1;z9<numberOfDevices*digitsPerDev;z9++) displaybuffer[z9-1]=displaybuffer[z9];
-	 writeDigitAscii(numberOfDevices*digitsPerDev-1,character,d);
+	 for (uint8_t z9=1;z9<numberOfDevices*digitsPerDev;z9++) displaybuffer[z9-1]=displaybuffer[z9];  //shift display memory left
+	 writeDigitAscii(numberOfDevices*digitsPerDev,character,d);
 	 writeDisplay();
 	 delay(s_delay);
   }
@@ -147,13 +151,13 @@ void AlphaDisp::scrollFinish(void)
  }
 void AlphaDisp::setCursor(uint8_t CA)
 {
-    if ((CA<=(numberOfDevices*digitsPerDev)) && (CA!=0)) cursorAddr=CA-1;  //Array is 0 based, but the first position is 1
+    if ((CA<=(numberOfDevices*digitsPerDev)) && (CA!=0)) cursorAddr=CA;  //the first position is 1
 }
 void AlphaDisp::writeString(uint8_t *characters)
 {
 	while (*characters)
 	{
-		if (cursorAddr<(numberOfDevices*digitsPerDev))  //still on the display area?
+		if (cursorAddr<((numberOfDevices*digitsPerDev)+1))  //still on the display area?
 		{
 			writeDigitAscii(cursorAddr++,*characters++);
 		}

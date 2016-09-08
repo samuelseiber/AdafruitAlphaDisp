@@ -24,6 +24,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
+Some modifications made by Samuel Seiber
+Copyright (c) 2012 Samuel Seiber
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+
 
 */
 
@@ -33,22 +44,22 @@ THE SOFTWARE.
 
 static const uint16_t alphafonttable[] PROGMEM =  {
 
-0b0000000000000001,
-0b0000000000000010,
-0b0000000000000100,
-0b0000000000001000,
-0b0000000000010000,
-0b0000000000100000,
-0b0000000001000000,
-0b0000000010000000,
-0b0000000100000000,
-0b0000001000000000,
-0b0000010000000000,
-0b0000100000000000,
-0b0001000000000000,
-0b0010000000000000,
-0b0100000000000000,
-0b1000000000000000,
+0b0000000000111111,  //7 segment 0
+0b0000000000000110,  //7 segment 1
+0b0000000011011011,  //7 segment 2
+0b0000000011001111,  //7 segment 3
+0b0000000011100110,  //7 segment 4
+0b0000000011101101,  //7 segment 5
+0b0000000011111101,  //7 segment 6
+0b0000000000000111,  //7 segment 7
+0b0000000011111111,  //7 segment 8
+0b0000000011101111,  //7 segment 9
+0b0000000000000000,
+0b0000000000000000,
+0b0000000000000000,
+0b0000000000000000,
+0b0000000000000000,
+0b0000000000000000,
 0b0000000000000000,
 0b0000000000000000,
 0b0000000000000000,

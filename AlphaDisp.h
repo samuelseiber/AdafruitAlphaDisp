@@ -61,7 +61,7 @@ furnished to do so, subject to the following conditions:
 class AlphaDisp {
  public:
   AlphaDisp(void);
-  void begin(uint8_t _addr, uint8_t ND, uint8_t DD);
+  void begin(uint8_t _addr, uint8_t ND=1, uint8_t DD=4);
   void setBrightness(uint8_t b);
   void blinkRate(uint8_t b);
   void writeDisplay(void);
@@ -74,6 +74,7 @@ class AlphaDisp {
   void scrollString(byte *characters);
   void setCursor(uint8_t CA);  //Set the cursor address
   void writeString(byte *characters);  //Write a string of characters starting at the cursor address
+  boolean sevenSegFlag;
  protected:
   uint8_t i2c_addr;
   unsigned long s_delay;
